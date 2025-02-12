@@ -4,17 +4,13 @@ const animationTimeline = () => {
   const textBoxChars = document.getElementsByClassName("hbd-chatbox")[0];
   const hbd = document.getElementsByClassName("wish-hbd")[0];
 
-  if (textBoxChars) {
-    textBoxChars.innerHTML = `<span>${textBoxChars.innerHTML
-      .split("")
-      .join("</span><span>")}</span`;
-  }
+  textBoxChars.innerHTML = `<span>${textBoxChars.innerHTML
+    .split("")
+    .join("</span><span>")}</span`;
 
-  if (hbd) {
-    hbd.innerHTML = `<span>${hbd.innerHTML
-      .split("")
-      .join("</span><span>")}</span`;
-  }
+  hbd.innerHTML = `<span>${hbd.innerHTML
+    .split("")
+    .join("</span><span>")}</span`;
 
   const ideaTextTrans = {
     opacity: 0,
@@ -234,37 +230,51 @@ const animationTimeline = () => {
       },
       "party"
     )
-    .then(() => {
-      // After all animations complete, show the valentine question
-      const overlay = document.querySelector('.overlay');
-      const valentineQuestion = document.querySelector('.valentine-question');
-      
-      overlay.style.display = 'block';
-      TweenMax.to(overlay, 0.3, {
-        opacity: 1
-      });
-      
-      valentineQuestion.style.display = 'block';
-      TweenMax.from(valentineQuestion, 0.5, {
-        scale: 0.5,
-        opacity: 0,
-        delay: 0.3,
-        ease: Back.easeOut.config(1.7)
-      });
+    .to(".six", 0.5, {
+      opacity: 0,
+      y: 30,
+      zIndex: "-1",
+      onComplete: () => {
+        // Show valentine question
+        showValentineQuestion();
+      }
     });
 };
+
+// Function to show valentine question
+function showValentineQuestion() {
+  const overlay = document.querySelector('.overlay');
+  const valentineQuestion = document.querySelector('.valentine-question');
+  
+  // Show overlay
+  overlay.style.display = 'block';
+  TweenMax.to(overlay, 0.3, {
+    opacity: 1
+  });
+  
+  // Show valentine question
+  valentineQuestion.style.display = 'block';
+  TweenMax.from(valentineQuestion, 0.5, {
+    scale: 0.5,
+    opacity: 0,
+    delay: 0.3,
+    ease: Back.easeOut.config(1.7)
+  });
+}
 
 // Function to show final message
 function showFinalMessage() {
   const valentineQuestion = document.querySelector('.valentine-question');
   const finalMessage = document.querySelector('.final-message');
   
+  // Hide valentine question
   TweenMax.to(valentineQuestion, 0.5, {
     scale: 0.5,
     opacity: 0,
     onComplete: () => {
       valentineQuestion.style.display = 'none';
       
+      // Show final message
       finalMessage.style.display = 'block';
       TweenMax.from(finalMessage, 0.5, {
         scale: 0.5,
