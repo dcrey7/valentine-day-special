@@ -4,13 +4,17 @@ const animationTimeline = () => {
   const textBoxChars = document.getElementsByClassName("hbd-chatbox")[0];
   const hbd = document.getElementsByClassName("wish-hbd")[0];
 
-  textBoxChars.innerHTML = `<span>${textBoxChars.innerHTML
-    .split("")
-    .join("</span><span>")}</span`;
+  if (textBoxChars) {
+    textBoxChars.innerHTML = `<span>${textBoxChars.innerHTML
+      .split("")
+      .join("</span><span>")}</span`;
+  }
 
-  hbd.innerHTML = `<span>${hbd.innerHTML
-    .split("")
-    .join("</span><span>")}</span`;
+  if (hbd) {
+    hbd.innerHTML = `<span>${hbd.innerHTML
+      .split("")
+      .join("</span><span>")}</span`;
+  }
 
   const ideaTextTrans = {
     opacity: 0,
@@ -192,12 +196,6 @@ const animationTimeline = () => {
       },
       "-=2"
     )
-    .from(".hat", 0.5, {
-      x: -100,
-      y: 350,
-      rotation: -180,
-      opacity: 0,
-    })
     .staggerFrom(
       ".wish-hbd span",
       0.7,
@@ -236,43 +234,23 @@ const animationTimeline = () => {
       },
       "party"
     )
-    .staggerTo(
-      ".eight svg",
-      1.5,
-      {
-        visibility: "visible",
+    .then(() => {
+      // After all animations complete, show the valentine question
+      const overlay = document.querySelector('.overlay');
+      const valentineQuestion = document.querySelector('.valentine-question');
+      
+      overlay.style.display = 'block';
+      TweenMax.to(overlay, 0.3, {
+        opacity: 1
+      });
+      
+      valentineQuestion.style.display = 'block';
+      TweenMax.from(valentineQuestion, 0.5, {
+        scale: 0.5,
         opacity: 0,
-        scale: 80,
-        repeat: 3,
-        repeatDelay: 1.4,
-      },
-      0.3
-    )
-    .to(".six", 0.5, {
-      opacity: 0,
-      y: 30,
-      zIndex: "-1",
-    })
-    .to(".nine", 0.5, {
-      opacity: 1,
-      onComplete: () => {
-        // Show overlay first
-        const overlay = document.querySelector('.overlay');
-        overlay.style.display = 'block';
-        TweenMax.to(overlay, 0.3, {
-          opacity: 1
-        });
-        
-        // Then show valentine question
-        const valentineQuestion = document.querySelector('.valentine-question');
-        valentineQuestion.style.display = 'block';
-        TweenMax.from(valentineQuestion, 0.5, {
-          scale: 0.5,
-          opacity: 0,
-          delay: 0.3,
-          ease: Back.easeOut.config(1.7)
-        });
-      }
+        delay: 0.3,
+        ease: Back.easeOut.config(1.7)
+      });
     });
 };
 
@@ -281,14 +259,12 @@ function showFinalMessage() {
   const valentineQuestion = document.querySelector('.valentine-question');
   const finalMessage = document.querySelector('.final-message');
   
-  // Fade out valentine question
   TweenMax.to(valentineQuestion, 0.5, {
     scale: 0.5,
     opacity: 0,
     onComplete: () => {
       valentineQuestion.style.display = 'none';
       
-      // Show final message
       finalMessage.style.display = 'block';
       TweenMax.from(finalMessage, 0.5, {
         scale: 0.5,
