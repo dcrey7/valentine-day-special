@@ -16,6 +16,24 @@
       .valentine-question {
         text-align: center;
         margin: 2em 0;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        z-index: 1000;
+        background-color: white;
+        padding: 2em;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        width: 80%;
+        max-width: 500px;
+      }
+
+      .valentine-question h2 {
+        margin-bottom: 1em;
+        font-size: 24px;
+        color: #333;
       }
 
       .button-container {
@@ -50,8 +68,30 @@
 
       .final-message {
         text-align: center;
-        margin-top: 2em;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+        z-index: 1000;
+        background-color: white;
+        padding: 2em;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        width: 80%;
+        max-width: 500px;
         font-size: 1.2em;
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 999;
       }
     </style>
   </head>
@@ -163,6 +203,9 @@
       </div>
 
       <div class="nine">
+        <!-- Add overlay div -->
+        <div class="overlay"></div>
+        
         <div class="valentine-question">
           <h2>Will you be my valentine?</h2>
           <div class="button-container">
@@ -170,7 +213,7 @@
             <button class="valentine-btn fuckyea-btn" onclick="showFinalMessage()">FUCK YEA</button>
           </div>
         </div>
-        <div class="final-message" style="display: none;">
+        <div class="final-message">
           <p>Sorry for making you go through this terrible ppt, but I'm ready to be a toilet for you now *Rizz*</p>
         </div>
       </div>

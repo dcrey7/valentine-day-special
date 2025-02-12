@@ -253,31 +253,47 @@ const animationTimeline = () => {
       y: 30,
       zIndex: "-1",
     })
-    .from(".nine", 0.5, {
-      opacity: 0,
-      scale: 0.5,
+    .to(".nine", 0.5, {
+      opacity: 1,
       onComplete: () => {
-        // Show valentine question and buttons after animation
-        document.querySelector('.valentine-question').style.opacity = '1';
+        // Show overlay first
+        const overlay = document.querySelector('.overlay');
+        overlay.style.display = 'block';
+        TweenMax.to(overlay, 0.3, {
+          opacity: 1
+        });
+        
+        // Then show valentine question
+        const valentineQuestion = document.querySelector('.valentine-question');
+        valentineQuestion.style.display = 'block';
+        TweenMax.from(valentineQuestion, 0.5, {
+          scale: 0.5,
+          opacity: 0,
+          delay: 0.3,
+          ease: Back.easeOut.config(1.7)
+        });
       }
     });
 };
 
 // Function to show final message
 function showFinalMessage() {
-  // Hide the question container with a fade out
-  const questionContainer = document.querySelector('.valentine-question');
-  TweenMax.to(questionContainer, 0.5, {
+  const valentineQuestion = document.querySelector('.valentine-question');
+  const finalMessage = document.querySelector('.final-message');
+  
+  // Fade out valentine question
+  TweenMax.to(valentineQuestion, 0.5, {
+    scale: 0.5,
     opacity: 0,
     onComplete: () => {
-      questionContainer.style.display = 'none';
-      // Show the final message with a fade in
-      const finalMessage = document.querySelector('.final-message');
+      valentineQuestion.style.display = 'none';
+      
+      // Show final message
       finalMessage.style.display = 'block';
       TweenMax.from(finalMessage, 0.5, {
+        scale: 0.5,
         opacity: 0,
-        y: 20,
-        scale: 0.9
+        ease: Back.easeOut.config(1.7)
       });
     }
   });
