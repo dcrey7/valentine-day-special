@@ -60,7 +60,6 @@ const animationTimeline = () => {
     .from(".three", 0.7, {
       opacity: 0,
       y: 10,
-      // scale: 0.7
     })
     .to(
       ".three",
@@ -205,7 +204,6 @@ const animationTimeline = () => {
       {
         opacity: 0,
         y: -50,
-        // scale: 0.3,
         rotation: 150,
         skewX: "30deg",
         ease: Elastic.easeOut.config(1, 0.5),
@@ -255,25 +253,35 @@ const animationTimeline = () => {
       y: 30,
       zIndex: "-1",
     })
-    .staggerFrom(".nine p", 1, ideaTextTrans, 1.2)
-    .to(
-      ".last-smile",
-      0.5,
-      {
-        rotation: 90,
-      },
-      "+=1"
-    );
-
-  // tl.seek("currentStep");
-  // tl.timeScale(2);
-
-  // Restart Animation on click
-  const replyBtn = document.getElementById("replay");
-  replyBtn.addEventListener("click", () => {
-    tl.restart();
-  });
+    .from(".nine", 0.5, {
+      opacity: 0,
+      scale: 0.5,
+      onComplete: () => {
+        // Show valentine question and buttons after animation
+        document.querySelector('.valentine-question').style.opacity = '1';
+      }
+    });
 };
+
+// Function to show final message
+function showFinalMessage() {
+  // Hide the question container with a fade out
+  const questionContainer = document.querySelector('.valentine-question');
+  TweenMax.to(questionContainer, 0.5, {
+    opacity: 0,
+    onComplete: () => {
+      questionContainer.style.display = 'none';
+      // Show the final message with a fade in
+      const finalMessage = document.querySelector('.final-message');
+      finalMessage.style.display = 'block';
+      TweenMax.from(finalMessage, 0.5, {
+        opacity: 0,
+        y: 20,
+        scale: 0.9
+      });
+    }
+  });
+}
 
 // Import the data to customize and insert them into page
 const fetchData = () => {
@@ -302,4 +310,5 @@ const resolveFetch = () => {
   });
 };
 
-resolveFetch().then(animationTimeline());
+// Initialize
+resolveFetch().then(animationTimeline);
