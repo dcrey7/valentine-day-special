@@ -1,190 +1,652 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Happy Valentine Day :)</title>
-    <link rel="shortcut icon" type="image/png" href="./img/heart.svg" />
-    <link rel="stylesheet" href="style/style.css" />
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine's Letter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-      #audio {
-        display: none;
-      }
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      .valentine-question {
-        text-align: center;
-        margin: 2em 0;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        display: none;
-        z-index: 1000;
-        background-color: white;
-        padding: 2em;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        width: 80%;
-        max-width: 500px;
-      }
+        body {
+            overflow: hidden;
+            font-family: 'Press Start 2P', cursive;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            color: #000;
+        }
 
-      .valentine-question h2 {
-        margin-bottom: 1em;
-        font-size: 24px;
-        color: #333;
-      }
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
 
-      .button-container {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 20px;
-      }
+        #particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-      .valentine-btn {
-        padding: 15px 30px;
-        font-size: 18px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: transform 0.2s;
-      }
+        #carousel-container {
+            width: 95vw;
+            max-width: 1000px;
+            height: 90vh;
+            max-height: 800px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.9);
+            border: 8px solid #ff69b4;
+            box-shadow: 0 0 32px rgba(255,105,180,0.3);
+            overflow: hidden;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 1;
+        }
 
-      .valentine-btn:hover {
-        transform: scale(1.1);
-      }
+        .scene {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            transform: translateX(100%);
+            transition: all 0.5s ease;
+            opacity: 0;
+            visibility: hidden;
+            background: rgba(255, 255, 255, 0.8);
+        }
 
-      .yes-btn {
-        background-color: #ff4d4d;
-        color: white;
-      }
+        .scene.active {
+            transform: translateX(0%);
+            opacity: 1;
+            visibility: visible;
+        }
 
-      .fuckyea-btn {
-        background-color: #4CAF50;
-        color: white;
-      }
+        .scene.prev {
+            transform: translateX(-100%);
+            opacity: 0;
+            visibility: hidden;
+        }
 
-      .final-message {
-        text-align: center;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        display: none;
-        z-index: 1000;
-        background-color: white;
-        padding: 2em;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        width: 80%;
-        max-width: 500px;
-        font-size: 1.2em;
-      }
+        .pixel-text {
+            text-align: center;
+            line-height: 1.8;
+            color: #000;
+            text-shadow: 1px 1px 0px rgba(255,105,180,0.3);
+            margin: 20px 0;
+        }
 
-      .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: none;
-        z-index: 999;
-      }
+        .pixel-mail {
+            width: 120px;
+            height: 80px;
+            position: relative;
+            margin: 40px auto;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .pixel-mail:hover {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .pixel-mail-body {
+            width: 100%;
+            height: 100%;
+            background: #ff69b4;
+            position: relative;
+            clip-path: polygon(0% 20%, 50% 50%, 100% 20%, 100% 100%, 0% 100%);
+        }
+
+        .pixel-mail-flap {
+            width: 100%;
+            height: 60%;
+            background: #ff1493;
+            position: absolute;
+            top: 0;
+            left: 0;
+            clip-path: polygon(0% 20%, 50% 0%, 100% 20%, 50% 50%);
+            transform-origin: top;
+            transition: transform 0.3s ease;
+        }
+
+        .pixel-mail:hover .pixel-mail-flap {
+            transform: rotateX(30deg);
+        }
+
+        .profile-image {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-image img {
+            max-width: 400px;  /* Adjust this value based on your needs */
+            height: auto;
+            transition: transform 0.3s ease;
+            display: block;
+        }
+
+        .profile-image img:hover {
+            transform: scale(1.05);  /* Increases size by 5% on hover */
+        }
+
+        .button-container {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .pixel-button {
+            font-family: 'Press Start 2P', cursive;
+            padding: 1rem 2rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.8rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .pixel-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .button-yes {
+            background: #ff0000;
+            color: white;
+            border: 2px solid #cc0000;
+        }
+
+        .button-fuck-yeah {
+            background: #00ff00;
+            color: black;
+            border: 2px solid #00cc00;
+        }
+
+        .navigation-container {
+            position: absolute;
+            bottom: 1rem;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 2;
+        }
+
+        .nav-arrow {
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            color: #ff1493;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .nav-arrow:hover {
+            transform: scale(1.2);
+            background: rgba(255,105,180,0.1);
+        }
+
+        .nav-hint {
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.9);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #paper-plane {
+            width: 40px;
+            height: 40px;
+            background: #ff1493;
+            clip-path: polygon(0 0, 100% 50%, 0 100%, 25% 50%);
+            position: absolute;
+            display: none;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .flying {
+            display: block !important;
+            animation: fly 2s forwards cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            width: 10px;
+            height: 10px;
+            background: #ff69b4;
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 0.7;
+            }
+            50% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fly {
+            0% { 
+                left: -50px;
+                top: 50%;
+                transform: rotate(0) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: rotate(15deg) scale(1.2);
+                opacity: 0.8;
+            }
+            100% { 
+                left: 120%;
+                top: 20%;
+                transform: rotate(45deg) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .pixel-text { font-size: 0.8em; }
+            .pixel-button { padding: 0.8rem 1.6rem; font-size: 0.7em; }
+            .nav-arrow { font-size: 1.5rem; }
+            .nav-hint { font-size: 0.6rem; }
+        }
     </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <div class="one">
-        <h1 class="one">
-          Hey
-          <span id="name">xyz</span>
-        </h1>
-        <p class="two" id="greetingText">I really like your name btw!</p>
-      </div>
-
-      <div class="three">
-        <p>It's a Valentine day today</p>
-      </div>
-
-      <div class="four">
-        <div class="text-box">
-          <p class="hbd-chatbox">
-            Happy Valentine's Day!! Yeee! Love and blah blah...
-          </p>
-          <p class="fake-btn">Send</p>
+</head>
+<body>
+    <canvas id="webgl-canvas"></canvas>
+    <div id="particles-container"></div>
+    <div id="carousel-container" tabindex="0">
+        <!-- Scene 0: Initial Mail -->
+        <div class="scene active" id="scene-0">
+            <h1 class="pixel-text">You have received mail!</h1>
+            <div class="pixel-mail">
+                <div class="pixel-mail-body"></div>
+                <div class="pixel-mail-flap"></div>
+            </div>
         </div>
-      </div>
 
-      <div class="five">
-        <p class="idea-1">That's what I was going to do.</p>
-        <p class="idea-2">But then I stopped.</p>
-        <p class="idea-3">
-          I realised, I wanted to do something <strong>special</strong>.
-        </p>
-        <p class="idea-4">Because,</p>
-        <p class="idea-5" id="specialText">
-          You are Special
-          <span>:)</span>
-        </p>
-        <p class="idea-6">
-          <span>S</span>
-          <span>O</span>
-        </p>
-      </div>
+        <!-- Scene 1: To Address -->
+        <div class="scene" id="scene-1">
+            <div class="letter-content">
+                <h2 class="pixel-text">To: NAna MAuna RAni TAoilet</h2>
+                <div class="profile-image">
+                    <!-- Updated image path -->
+                    <img src="vector.jpeg" alt="Profile Picture">
+                </div>
+            </div>
+        </div>
 
-      <div class="six">
-        <img src="img/vector.jpeg" alt="" class="girl-dp" id="imagePath" />
-        <div class="wish">
-          <h3 class="wish-hbd">Happy Valentine's Day Gorgeous</h3>
-          <h5 id="wishText">Aankhon me teri Ajab si Ajab si aadae hai, Dil ko bna de ye malang ye teri wo hawayeinn hai</h5>
+        <!-- Scene 2: Greeting -->
+        <div class="scene" id="scene-2">
+            <div class="letter-content">
+                <p class="pixel-text">Dear NAna MAuna RAni TAoilet,</p>
+                <p class="pixel-text">really like your name btw!</p>
+            </div>
         </div>
-      </div>
 
-      <div class="seven">
-        <div class="baloons">
-          <img src="img/balloon.svg" alt="" />
-          <img src="img/smiling.svg" />
-          <img src="img/heart.svg" />
-          <img src="img/balloon.svg" alt="" />
-          <img src="img/heart.svg" />
-          <img src="img/balloon.svg" alt="" />
-          <img src="img/music-note.svg" alt="" />
-          <img src="img/heart.svg" />
-          <img src="img/balloon.svg" alt="" />
-          <img src="img/heart.svg" />
-          <img src="img/balloon.svg" alt="" />
-          <img src="img/heart.svg" />
-          <img src="img/heart.svg" />
-          <img src="img/music-note.svg" alt="" />
-          <img src="img/smiling.svg" />
-          <img src="img/happy.svg" alt="" />
-          <img src="img/balloon.svg" alt="" />
-          <img src="img/heart.svg" />
-          <img src="img/smiling.svg" />
+        <!-- Scene 3: Valentine's Message -->
+        <div class="scene" id="scene-3">
+            <div class="letter-content">
+                <p class="pixel-text">Valentines day is coming up pretty soon</p>
+            </div>
         </div>
-      </div>
 
-      <div class="nine">
-        <div class="overlay"></div>
-        <div class="valentine-question">
-          <h2>Will you be my valentine?</h2>
-          <div class="button-container">
-            <button class="valentine-btn yes-btn" onclick="showFinalMessage()">YES</button>
-            <button class="valentine-btn fuckyea-btn" onclick="showFinalMessage()">FUCK YEA</button>
-          </div>
+        <!-- Scene 4: Appreciation -->
+        <div class="scene" id="scene-4">
+            <div class="letter-content">
+                <p class="pixel-text">Hold up tho, just want to appreciate you for being a #1 TOILET and being real nice with me</p>
+            </div>
         </div>
-        <div class="final-message">
-          <p>Sorry for making you go through this terrible ppt, but I'm ready to be a toilet for you now *Rizz*</p>
+
+        <!-- Scene 5: Valentine's Proposal -->
+        <div class="scene" id="scene-5">
+            <div class="letter-content">
+                <p class="pixel-text">Imma let you finish but girl you so fine like wine and 69, maybe on valentine we could go dine and make you mine?</p>
+                <div class="button-container">
+                    <button class="pixel-button button-yes">YES</button>
+                    <button class="pixel-button button-fuck-yeah">FUCK YEA</button>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- Scene 6: Final Message -->
+        <div class="scene" id="scene-6">
+            <div class="letter-content">
+                <p class="pixel-text">See you soon dearest toilet 😎😏</p>
+            </div>
+        </div>
+
+
+
+        <!-- Navigation -->
+        <div class="navigation-container">
+            <div class="nav-arrow" id="prev-arrow" role="button" tabindex="0">←</div>
+            <div class="nav-hint pixel-text">Use arrow keys to navigate</div>
+            <div class="nav-arrow" id="next-arrow" role="button" tabindex="0">→</div>
+        </div>
     </div>
 
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.3/TweenMax.min.js"></script>
-    <script type="text/babel" src="script/main.js"></script>
-  </body>
+    <script>
+        // WebGL Background
+        class WebGLBackground {
+            constructor() {
+                this.canvas = document.getElementById('webgl-canvas');
+                this.gl = this.canvas.getContext('webgl');
+                this.vertices = new Float32Array([-1,-1, 1,-1, -1,1, 1,1]);
+                this.mouse = { x: 0, y: 0 };
+                
+                window.addEventListener('mousemove', (e) => {
+                    this.mouse.x = e.clientX / window.innerWidth;
+                    this.mouse.y = 1 - e.clientY / window.innerHeight;
+                });
+
+                this.vertexShader = `
+                    attribute vec2 position;
+                    void main() {
+                        gl_Position = vec4(position, 0.0, 1.0);
+                    }
+                `;
+
+                this.fragmentShader = `
+                    precision mediump float;
+                    uniform vec2 resolution;
+                    uniform vec2 mouse;
+                    uniform float time;
+
+                    void main() {
+                        vec2 uv = gl_FragCoord.xy / resolution;
+                        vec2 center = vec2(0.5) + vec2(
+                            sin(time * 0.5) * 0.1,
+                            cos(time * 0.3) * 0.1
+                        );
+                        
+                        float d1 = length(uv - center - mouse * 0.2);
+                        float d2 = length(uv - center + mouse * 0.2);
+                        
+                        vec3 color1 = vec3(0.98, 0.4, 0.7);
+                        vec3 color2 = vec3(1.0, 0.8, 0.9);
+                        vec3 color3 = vec3(0.95, 0.6, 0.8);
+                        
+                        vec3 color = mix(
+                            mix(color1, color2, d1),
+                            color3,
+                            sin(d2 * 10.0 + time) * 0.5 + 0.5
+                        );
+                        
+                        float vignette = 1.0 - length(uv - 0.5) * 0.7;
+                        color *= vignette;
+                        
+                        gl_FragColor = vec4(color, 1.0);
+                    }
+                `;
+
+                this.init();
+            }
+
+            init() {
+                const gl = this.gl;
+                
+                const program = gl.createProgram();
+                const vs = this.createShader(this.vertexShader, gl.VERTEX_SHADER);
+                const fs = this.createShader(this.fragmentShader, gl.FRAGMENT_SHADER);
+                gl.attachShader(program, vs);
+                gl.attachShader(program, fs);
+                gl.linkProgram(program);
+                gl.useProgram(program);
+
+                const buffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
+
+                const position = gl.getAttribLocation(program, 'position');
+                gl.enableVertexAttribArray(position);
+                gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+                this.uniforms = {
+                    resolution: gl.getUniformLocation(program, 'resolution'),
+                    mouse: gl.getUniformLocation(program, 'mouse'),
+                    time: gl.getUniformLocation(program, 'time')
+                };
+
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.animate();
+            }
+
+            createShader(source, type) {
+                const gl = this.gl;
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                return shader;
+            }
+
+            resize() {
+                const { canvas, gl, uniforms } = this;
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+                gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
+            }
+
+            animate(now) {
+                const { gl, uniforms, mouse } = this;
+                gl.uniform2f(uniforms.mouse, mouse.x, mouse.y);
+                gl.uniform1f(uniforms.time, now * 0.001);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                requestAnimationFrame((now) => this.animate(now));
+            }
+        }
+
+        // Particle System
+        class ParticleSystem {
+            constructor() {
+                this.container = document.getElementById('particles-container');
+                this.maxParticles = 50;
+                this.particles = [];
+                this.init();
+            }
+
+            init() {
+                setInterval(() => this.createParticle(), 200);
+            }
+
+            createParticle() {
+                if (this.particles.length >= this.maxParticles) {
+                    const oldParticle = this.particles.shift();
+                    oldParticle.remove();
+                }
+
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.bottom = '0';
+                particle.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
+                this.container.appendChild(particle);
+                this.particles.push(particle);
+
+                particle.addEventListener('animationend', () => {
+                    particle.remove();
+                    const index = this.particles.indexOf(particle);
+                    if (index > -1) {
+                        this.particles.splice(index, 1);
+                    }
+                });
+            }
+        }
+
+        // Valentine App Logic
+        class ValentineApp {
+            constructor() {
+                this.currentScene = 0;
+                this.scenes = Array.from(document.querySelectorAll('.scene'));
+                this.totalScenes = this.scenes.length;
+                this.prevArrow = document.getElementById('prev-arrow');
+                this.nextArrow = document.getElementById('next-arrow');
+                this.yesButton = document.querySelector('.button-yes');
+                this.fuckYeaButton = document.querySelector('.button-fuck-yeah');
+
+                this.init();
+            }
+
+            init() {
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            this.prevScene();
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            this.nextScene();
+                            break;
+                    }
+                });
+
+                // Click navigation
+                this.prevArrow.addEventListener('click', () => this.prevScene());
+                this.nextArrow.addEventListener('click', () => this.nextScene());
+                
+                // Response buttons
+                if (this.yesButton) {
+                    this.yesButton.addEventListener('click', () => this.handleResponse('yes'));
+                }
+                if (this.fuckYeaButton) {
+                    this.fuckYeaButton.addEventListener('click', () => this.handleResponse('fuck-yeah'));
+                }
+
+                // Initial update
+                this.updateScene();
+            }
+
+            nextScene() {
+                if (this.currentScene < this.totalScenes - 1) {
+                    this.currentScene++;
+                    this.updateScene();
+                }
+            }
+
+            prevScene() {
+                if (this.currentScene > 0) {
+                    this.currentScene--;
+                    this.updateScene();
+                }
+            }
+
+            updateScene() {
+                // Update scene classes
+                this.scenes.forEach((scene, index) => {
+                    scene.classList.remove('active', 'prev');
+                    if (index === this.currentScene) {
+                        scene.classList.add('active');
+                    } else if (index < this.currentScene) {
+                        scene.classList.add('prev');
+                    }
+                });
+
+                // Update navigation buttons
+                this.updateNavigation();
+
+                // Handle special scenes
+                this.handleSpecialSceneEffects();
+            }
+
+            updateNavigation() {
+                this.prevArrow.style.opacity = this.currentScene === 0 ? '0.5' : '1';
+                this.prevArrow.style.pointerEvents = this.currentScene === 0 ? 'none' : 'auto';
+                
+                this.nextArrow.style.opacity = this.currentScene === this.totalScenes - 1 ? '0.5' : '1';
+                this.nextArrow.style.pointerEvents = this.currentScene === this.totalScenes - 1 ? 'none' : 'auto';
+
+                const navHint = document.querySelector('.nav-hint');
+                navHint.textContent = this.currentScene === 0 
+                    ? 'Press right arrow to open' 
+                    : 'Use arrow keys to navigate';
+            }
+
+            handleSpecialSceneEffects() {
+                switch(this.currentScene) {
+                    case 0:
+                        this.animateMailIcon();
+                        break;
+                    case 5:
+                        this.enableResponseButtons();
+                        break;
+                    case 7:
+                        this.animatePaperPlane();
+                        break;
+                }
+            }
+
+            animateMailIcon() {
+                const mailIcon = document.querySelector('.pixel-mail');
+                if (mailIcon) {
+                    mailIcon.classList.add('animate');
+                }
+            }
+
+            enableResponseButtons() {
+                if (this.yesButton) this.yesButton.disabled = false;
+                if (this.fuckYeaButton) this.fuckYeaButton.disabled = false;
+            }
+
+            animatePaperPlane() {
+                const paperPlane = document.getElementById('paper-plane');
+                if (paperPlane) {
+                    paperPlane.style.display = 'block';
+                    requestAnimationFrame(() => {
+                        paperPlane.classList.add('flying');
+                    });
+                }
+            }
+
+            handleResponse(response) {
+                this.currentScene = 7;
+                this.updateScene();
+            }
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new WebGLBackground();
+            new ParticleSystem();
+            new ValentineApp();
+        });
+    </script>
+</body>
 </html>
